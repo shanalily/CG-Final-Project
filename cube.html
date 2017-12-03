@@ -45,11 +45,11 @@
 		<script type="text/javascript" src="./cube_files/cube.js"></script>
 	</head>
 	<body>
-		<canvas id="gl-canvas" width="800" height="800">
+		<canvas id="gl-canvas" width="750" height="750">
 		Oops ... your browser doesn't support the HTML5 canvas element
 		</canvas>
 		<br/>
-		<div class="axis">
+		<div class="row">
 			<div>
 				L<input id="L" type="range" min="-180" max="180" step="90" value="0"/>
 			</div>
@@ -60,7 +60,7 @@
 				R<input id="R" type="range" min="-180" max="180" step="90" value="0"/>
 			</div>
 		</div>
-		<div class="axis">
+		<div class="row">
 			<div>
 				U<input id="U" type="range" min="-180" max="180" step="90" value="0"/>
 			</div>
@@ -71,7 +71,7 @@
 				D<input id="D" type="range" min="-180" max="180" step="90" value="0"/>
 			</div>
 		</div>
-		<div class="axis">
+		<div class="row">
 			<div>
 				F<input id="F" type="range" min="-180" max="180" step="90" value="0"/>
 			</div>
@@ -83,20 +83,21 @@
 			</div>
 		</div>
 		<br/><br/>
-		<div class="axis">
-			<div>
-				<p>VIEWS</p>
-			</div>
+		<div class="row">
+			<p>VIEWS</p>
 		</div>
-		<div class="axis">
-			<div>
-				<button id="center" class="button">CENTER</button>
-			</div>
+		<div class="row">
+			<button id="center" class="button">CENTER</button>
 		</div>
-		<div class="axis">
-			<div>
-				<button id="isometric" class="button">ISOMETRIC</button>
-			</div>
+		<div class="row">
+			<button id="isometric" class="button">ISOMETRIC</button>
+		</div>
+		<br/><br/>
+		<div class="row">
+			SETTINGS
+		</div>
+		<div class="row">
+			<button id="reset" class="button">RESET</button>
 		</div>
 	</body>
 </html>

@@ -1,7 +1,7 @@
 body {
 	font-family: monospace;
 }
-.axis {
+.row {
 	display: inline-block;
 }
 .button {

@@ -3,6 +3,7 @@ var gl;
 var vBuffer;
 
 var points = [];
+var originalPoints = [];
 var colors = [];
 var vertexColors = [
 	[ 1.0, 0.0, 0.0, 1.0 ],  // red
@@ -24,6 +25,7 @@ var currentCubeLocs = [
 	756, 792, 828,
 	864, 900, 936
 ];
+var originalCubeLocs = [];
 
 var theta = [0, 0, 0];
 var thetaLoc;
@@ -128,7 +130,17 @@ function center() {
 function isometric() {
 	trackingMouse = true;
 	trackballMove = true;
+	//
 	mouseAngle = 0.0;
+	mouseAxis[0] = 0; mouseAxis[1] = 0; mouseAxis[2] = 1;
+	mouseLastPos[0] = 0; mouseLastPos[1] = 0; mouseLastPos[2] = 0;
+	rotationQuaternion[0] = 1; rotationQuaternion[1] = 0;
+	rotationQuaternion[2] = 0; rotationQuaternion[3] = 0;
+	// angle: 0.0, index: 0, doesn't rotate
+	// angle: 0.0, index: 1, rotated around x axis
+	// angle: 0.0, index: 2, rotated around y axis
+	// angle: 0.0, index: 3, doesn't rotate
+	//
 	console.log("button 2");
 	render();
 	trackingMouse = false;
@@ -182,6 +194,9 @@ window.onload = function init() {
     });
     document.getElementById("isometric").addEventListener("click", function() {
     	isometric();
+    });
+    document.getElementById("reset").addEventListener("click", function() {
+    	reset();
     });
 
     canvas.addEventListener("mousedown", function(event) {
@@ -247,6 +262,8 @@ function formCubes() {
     	quad(i+4, i+5, i+6, i+7);
     	quad(i+5, i+4, i, i+1);
     }
+    originalPoints = points.slice();
+    originalCubeLocs = currentCubeLocs.slice();
 }
 
 function quad(a, b, c, d) {
@@ -605,6 +622,16 @@ function B(angle) {
 	}
 }
 
+function reset() {
+	// reload page?
+	// give options for traditional or goats
+	// can I somehow reload vertices?
+	points = originalPoints; // issue is, it's pass by reference
+	currentCubeLocs = originalCubeLocs;
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+	center();
+}
+
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	if (trackballMove) {
@@ -615,6 +642,11 @@ function render() {
 		// rotationQuaterion = q
 		rotationQuaternion = multq(rotationQuaternion, rotation);
 		gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
+		// test
+		console.log('mouseAxis: ', mouseAxis);
+		console.log('mouseAngle: ', mouseAngle);
+		console.log('rotation: ', rotation);
+		console.log('rotationQuaternion: ', rotationQuaternion);
 	}
 	gl.drawArrays(gl.TRIANGLES, 0, points.length);
 	requestAnimFrame(render);
