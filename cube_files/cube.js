@@ -46,6 +46,7 @@ var startX, startY;
 function multq(a, b) {
 	var s = vec3(a[1], a[2], a[3]);
 	var t = vec3(b[1], b[2], b[3]);
+	// console.log(s, t);
 	return (vec4(a[0]*b[0] - dot(s,t), add(cross(t, s), add(scale(a[0],t), scale(b[0],s)))));
 }
 
@@ -105,21 +106,33 @@ function stopMotion(x, y) {
 }
 
 // still needs to be implemented
-// I need to think about this, maybe I need to review quaternions
+// I need to somehow make there be no rotation...
 // should put cube back in original position, since sometimes spinning gets out of hand
 function center() {
-	// part of issue is that render needs trackingMouse to be true
-	trackingMouse = false;
-	trackballMove = false;
+	trackingMouse = true;
+	trackballMove = true;
+	// I think I should reset everything to how it was at the beginning
+	// but do I also need to rotate it back? find the angle to do that?
 	mouseAngle = 0.0;
 	mouseAxis[0] = 0; mouseAxis[1] = 0; mouseAxis[2] = 1;
 	mouseLastPos[0] = 0; mouseLastPos[1] = 0; mouseLastPos[2] = 0;
-	console.log("hi");
+	rotationQuaternion[0] = 1; rotationQuaternion[1] = 0;
+	rotationQuaternion[2] = 0; rotationQuaternion[3] = 0;
+	console.log("button 1");
+	render();
+	trackingMouse = false;
+	trackballMove = false;
 }
 
 // still needs to be implemented
 function isometric() {
-	//
+	trackingMouse = true;
+	trackballMove = true;
+	mouseAngle = 0.0;
+	console.log("button 2");
+	render();
+	trackingMouse = false;
+	trackballMove = false;
 }
 
 function hi() {
@@ -160,38 +173,16 @@ window.onload = function init() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    // thetaLoc = gl.getUniformLocation(program, "theta"); // might not need this
-
     rotationQuaternion = vec4(1, 0, 0, 0);
     rotationQuaternionLoc = gl.getUniformLocation(program, "r");
     gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
 
-    // document.getElementById("x-axis").onchange = function() {
-    // 	theta[0] = event.target.value;
-    // }
-    // document.getElementById("y-axis").onchange = function() {
-    // 	theta[1] = event.target.value;
-    // }
-    // document.getElementById("z-axis").onchange = function() {
-    // 	theta[2] = event.target.value;
-    // }
-
-    document.getElementById("center").onchange = function() {
-    	console.log(1);
+    document.getElementById("center").addEventListener("click", function() {
     	center();
-    }
-    // document.getElementById("center").addEventListener("onclick", function() {
-    // 	console.log(2);
-    // 	center();
-    // });
-    document.getElementById("isometric").onchange = function() {
-    	console.log(3);
+    });
+    document.getElementById("isometric").addEventListener("click", function() {
     	isometric();
-    }
-    // document.getElementById("isometric").addEventListener("onclick", function() {
-    // 	console.log(4);
-    // 	isometric();
-    // });
+    });
 
     canvas.addEventListener("mousedown", function(event) {
     	var x = 2*event.clientX/canvas.width-1;
@@ -278,7 +269,7 @@ function multiply(point, m) {
 	newPoint[1] = (m[0][1] * oldPoint[0]) + (m[1][1] * oldPoint[1]) + (m[2][1] * oldPoint[2]);
 	newPoint[2] = (m[0][2] * oldPoint[0]) + (m[1][2] * oldPoint[1]) + (m[2][2] * oldPoint[2]);
 	return newPoint;
-	// I think I can ignore the fourth column because w = 1
+	// I can ignore the fourth column because w = 1
 }
 
 function rotateCube(i, m) {
@@ -621,10 +612,10 @@ function render() {
 		var c = Math.cos(mouseAngle/2.0);
 		var s = Math.sin(mouseAngle/2.0);
 		var rotation = vec4(c, s*mouseAxis[0], s*mouseAxis[1], s*mouseAxis[2]);
+		// rotationQuaterion = q
 		rotationQuaternion = multq(rotationQuaternion, rotation);
 		gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
 	}
-	// gl.uniform3fv(thetaLoc, flatten(theta));
 	gl.drawArrays(gl.TRIANGLES, 0, points.length);
 	requestAnimFrame(render);
 }

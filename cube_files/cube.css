@@ -1,0 +1,15 @@
+body {
+	font-family: monospace;
+}
+.axis {
+	display: inline-block;
+}
+.button {
+	font-family: monospace;
+	border: none;
+	color: white;
+	background-color: black;
+}
+.button:hover{
+	background-color: blue;
+}
