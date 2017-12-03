@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Cube</title>
+		<style>
+			body {
+				font-family: monospace;
+			}
+			.axis {
+				display: inline-block;
+			}
+			.button {
+				font-family: monospace;
+				border: none;
+				color: white;
+				background-color: black;
+			}
+			.button:hover{
+				background-color: blue;
+			}
+		</style>
+		<!-- vertex shader -->
+		<script id="vertex-shader" type="x-shader/x-vertex">
+			attribute vec4 vPosition;
+			attribute vec4 vColor;
+			varying vec4 fColor;
+			// uniform vec3 theta;
+			//
+			uniform vec4 r;
+
+			vec4 multq(vec4 a, vec4 b) {
+				return vec4(a.x*b.x - dot(a.yzw, b.yzw), a.x*b.yzw+b.x*a.yzw+cross(b.yzw, a.yzw));
+			}
+
+			vec4 invq(vec4 a) {
+				return vec4(a.x, -a.yzw)/dot(a,a);
+			}
+
+			void main() {
+				// vec3 angles = radians(theta);
+				// vec3 c = cos(angles);
+				// vec3 s = sin(angles);
+
+				// // some rotation matrices I think I'll need
+				// mat4 rx = mat4( 1.0,  0.0,  0.0, 0.0,
+		  //   					0.0,  c.x,  s.x, 0.0,
+		  //   					0.0, -s.x,  c.x, 0.0,
+		  //   					0.0,  0.0,  0.0, 1.0 );
+
+   	// 		 	mat4 ry = mat4( c.y, 0.0, -s.y, 0.0,
+		  //   					0.0, 1.0,  0.0, 0.0,
+		  //   					s.y, 0.0,  c.y, 0.0,
+		  //   					0.0, 0.0,  0.0, 1.0 );
+
+
+    // 			mat4 rz = mat4( c.z, s.z, 0.0, 0.0,
+		  //   					-s.z,  c.z, 0.0, 0.0,
+		  //  	 					0.0,  0.0, 1.0, 0.0,
+		  //   					0.0,  0.0, 0.0, 1.0 );
+
+		  		vec4 p;
+
+    			// gl_Position = rz * ry * rx * vPosition;
+				p = vec4(0.0, vPosition.xyz);
+				p = multq(r, multq(p, invq(r)));
+				gl_Position = vec4(p.yzw, 1.0);
+				gl_Position.z = -gl_Position.z;
+				fColor = vColor;
+			}
+		</script>
+		<!-- fragment shader -->
+		<script id="fragment-shader" type="x-shader/x-fragment">
+			precision mediump float;
+			varying vec4 fColor;
+
+			void main() {
+				gl_FragColor = fColor;
+			}
+		</script>
+		<!-- include js file -->
+		<script type="text/javascript" src="./cube_files/webgl-utils.js"></script>
+		<script type="text/javascript" src="./cube_files/initShaders.js"></script>
+		<script type="text/javascript" src="./cube_files/MV.js"></script>
+		<script type="text/javascript" src="./cube_files/vertices.js"></script>
+		<script type="text/javascript" src="./cube_files/cube.js"></script>
+	</head>
+	<body>
+		<!-- I'm using sliders for now, but will change later to use trackball -->
+		<!-- <div>
+			X<input id="x-axis" type="range" min="-180" max="180" step="1" value="0"/>
+		</div>
+		<div>
+			Y<input id="y-axis" type="range" min="-180" max="180" step="1" value="0"/>
+		</div>
+		<div>
+			Z<input id="z-axis" type="range" min="-180" max="180" step="1" value="0"/>
+		</div> -->
+		<canvas id="gl-canvas" width="800" height="800">
+		Oops ... your browser doesn't support the HTML5 canvas element
+		</canvas>
+		<br/>
+		<div class="axis">
+			<div>
+				L<input id="L" type="range" min="-180" max="180" step="90" value="0"/>
+			</div>
+			<!-- <div>
+				:)<input id="xMid" type="range" min="-180" max="180" step="90" value="0"/>
+			</div> -->
+			<div>
+				R<input id="R" type="range" min="-180" max="180" step="90" value="0"/>
+			</div>
+		</div>
+		<div class="axis">
+			<div>
+				U<input id="U" type="range" min="-180" max="180" step="90" value="0"/>
+			</div>
+			<!-- <div>
+				:)<input id="yMid" type="range" min="-180" max="180" step="90" value="0"/>
+			</div> -->
+			<div>
+				D<input id="D" type="range" min="-180" max="180" step="90" value="0"/>
+			</div>
+		</div>
+		<div class="axis">
+			<div>
+				F<input id="F" type="range" min="-180" max="180" step="90" value="0"/>
+			</div>
+			<!-- <div>
+				:)<input id="zMid" type="range" min="-180" max="180" step="90" value="0"/>
+			</div> -->
+			<div>
+				B<input id="B" type="range" min="-180" max="180" step="90" value="0"/>
+			</div>
+		</div>
+		<br/><br/>
+		<div class="axis">
+			<div>
+				<!-- <input id="center" class="button" type="button" value="center" onclick="center()"/> -->
+				<button id="center" class="button">center</button>
+			</div>
+		</div>
+		<div class="axis">
+			<div>
+				<input id="isometric" class="button" type="button" value="isometric"/>
+			</div>
+		</div>
+	</body>
+</html>
