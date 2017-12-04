@@ -196,7 +196,17 @@ window.onload = function init() {
     	isometric();
     });
     document.getElementById("reset").addEventListener("click", function() {
-    	reset();
+    	var validAnswer = false;
+    	while (!validAnswer) {
+    		var resetCube = prompt("Are you sure you want to reset your cube? Please answer 'Yes' or 'No'.");
+	    	if (resetCube.toLowerCase() == 'yes') {
+	    		reset();
+	    		validAnswer = true;
+	    	} else if (resetCube.toLowerCase() == 'no') {
+	    		validAnswer = true;
+	    	}
+    	}
+    	validAnswer = false;
     });
 
     canvas.addEventListener("mousedown", function(event) {
@@ -626,9 +636,15 @@ function reset() {
 	// reload page?
 	// give options for traditional or goats
 	// can I somehow reload vertices?
-	points = originalPoints; // issue is, it's pass by reference
-	currentCubeLocs = originalCubeLocs;
+	points = originalPoints.slice(); // issue is, it's pass by reference
+	currentCubeLocs = originalCubeLocs.slice();
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+	document.getElementById("L").value = 0;
+	document.getElementById("R").value = 0;
+	document.getElementById("U").value = 0;
+	document.getElementById("D").value = 0;
+	document.getElementById("F").value = 0;
+	document.getElementById("B").value = 0;
 	center();
 }
 
