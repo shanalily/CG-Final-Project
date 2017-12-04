@@ -107,9 +107,7 @@ function stopMotion(x, y) {
 	}
 }
 
-// still needs to be implemented
-// I need to somehow make there be no rotation...
-// should put cube back in original position, since sometimes spinning gets out of hand
+// puts cube back in original position, since sometimes spinning gets out of hand
 function center() {
 	trackingMouse = true;
 	trackballMove = true;
@@ -308,21 +306,21 @@ function rotateCube(i, m) {
 	// gl.bufferSubData(gl.ARRAY_BUFFER, i, flatten(cubePoints));
 }
 
-function rotateSection(m, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
-	rotateCube(currentCubeLocs[i1], m);
-	rotateCube(currentCubeLocs[i2], m);
-	rotateCube(currentCubeLocs[i3], m);
+function rotateSection(m, cubes) {
+	rotateCube(currentCubeLocs[cubes[0]], m);
+	rotateCube(currentCubeLocs[cubes[1]], m);
+	rotateCube(currentCubeLocs[cubes[2]], m);
 
-	rotateCube(currentCubeLocs[i4], m);
-	rotateCube(currentCubeLocs[i5], m);
-	rotateCube(currentCubeLocs[i6], m);
+	rotateCube(currentCubeLocs[cubes[3]], m);
+	rotateCube(currentCubeLocs[cubes[4]], m);
+	rotateCube(currentCubeLocs[cubes[5]], m);
 
-	rotateCube(currentCubeLocs[i7], m);
-	rotateCube(currentCubeLocs[i8], m);
-	rotateCube(currentCubeLocs[i9], m);
+	rotateCube(currentCubeLocs[cubes[6]], m);
+	rotateCube(currentCubeLocs[cubes[7]], m);
+	rotateCube(currentCubeLocs[cubes[8]], m);
 }
 
-function xAxisRotation(angle, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function xAxisRotation(angle, cubes) {
 	var c = Math.cos(angle * Math.PI / 180);
 	var s = Math.sin(angle * Math.PI / 180);
 	var rx = mat4(1.0,  0.0,  0.0, 0.0,
@@ -330,11 +328,11 @@ function xAxisRotation(angle, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
 		    	  0.0, -s,  c, 0.0,
 		    	  0.0,  0.0,  0.0, 1.0 );
 	gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-	rotateSection(rx, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	rotateSection(rx, cubes);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
 }
 
-function yAxisRotation(angle, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function yAxisRotation(angle, cubes) {
 	var c = Math.cos(angle * Math.PI / 180);
 	var s = Math.sin(angle * Math.PI / 180);
 	var ry = mat4(c, 0.0, -s, 0.0,
@@ -342,11 +340,11 @@ function yAxisRotation(angle, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
 		    	  s, 0.0,  c, 0.0,
 		    	  0.0, 0.0,  0.0, 1.0);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-	rotateSection(ry, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	rotateSection(ry, cubes);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
 }
 
-function zAxisRotation(angle, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function zAxisRotation(angle, cubes) {
 	var c = Math.cos(angle * Math.PI / 180);
 	var s = Math.sin(angle * Math.PI / 180);
 	var rz = mat4(c, s, 0.0, 0.0,
@@ -354,58 +352,58 @@ function zAxisRotation(angle, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
 		   	 	  0.0,  0.0, 1.0, 0.0,
 		    	  0.0,  0.0, 0.0, 1.0);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-	rotateSection(rz, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	rotateSection(rz, cubes);
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
 }
 
-function moveLocationPositive90X(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function moveLocationPositive90X(cubes) {
 	var prevCubeLocs = currentCubeLocs.slice();
 
-	currentCubeLocs[i1] = prevCubeLocs[i3];
-	currentCubeLocs[i2] = prevCubeLocs[i6];
-	currentCubeLocs[i3] = prevCubeLocs[i9];
+	currentCubeLocs[cubes[0]] = prevCubeLocs[cubes[2]];
+	currentCubeLocs[cubes[1]] = prevCubeLocs[cubes[5]];
+	currentCubeLocs[cubes[2]] = prevCubeLocs[cubes[8]];
 
-	currentCubeLocs[i4] = prevCubeLocs[i2];
-	currentCubeLocs[i5] = prevCubeLocs[i5]; // not actually necessary
-	currentCubeLocs[i6] = prevCubeLocs[i8];
+	currentCubeLocs[cubes[3]] = prevCubeLocs[cubes[1]];
+	currentCubeLocs[cubes[4]] = prevCubeLocs[cubes[4]]; // not actually necessary
+	currentCubeLocs[cubes[5]] = prevCubeLocs[cubes[7]];
 
-	currentCubeLocs[i7] = prevCubeLocs[i1];
-	currentCubeLocs[i8] = prevCubeLocs[i4];
-	currentCubeLocs[i9] = prevCubeLocs[i7];
+	currentCubeLocs[cubes[6]] = prevCubeLocs[cubes[0]];
+	currentCubeLocs[cubes[7]] = prevCubeLocs[cubes[3]];
+	currentCubeLocs[cubes[8]] = prevCubeLocs[cubes[6]];
 }
 
-function moveLocationNegative90X(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function moveLocationNegative90X(cubes) {
 	var prevCubeLocs = currentCubeLocs.slice();
 
-	currentCubeLocs[i3] = prevCubeLocs[i1];
-	currentCubeLocs[i6] = prevCubeLocs[i2];
-	currentCubeLocs[i9] = prevCubeLocs[i3];
+	currentCubeLocs[cubes[2]] = prevCubeLocs[cubes[0]];
+	currentCubeLocs[cubes[5]] = prevCubeLocs[cubes[1]];
+	currentCubeLocs[cubes[8]] = prevCubeLocs[cubes[2]];
 
-	currentCubeLocs[i2] = prevCubeLocs[i4];
-	currentCubeLocs[i5] = prevCubeLocs[i5]; // not actually necessary
-	currentCubeLocs[i8] = prevCubeLocs[i6];
+	currentCubeLocs[cubes[1]] = prevCubeLocs[cubes[3]];
+	currentCubeLocs[cubes[4]] = prevCubeLocs[cubes[4]]; // not actually necessary
+	currentCubeLocs[cubes[7]] = prevCubeLocs[cubes[5]];
 
-	currentCubeLocs[i1] = prevCubeLocs[i7];
-	currentCubeLocs[i4] = prevCubeLocs[i8];
-	currentCubeLocs[i7] = prevCubeLocs[i9];
+	currentCubeLocs[cubes[0]] = prevCubeLocs[cubes[6]];
+	currentCubeLocs[cubes[3]] = prevCubeLocs[cubes[7]];
+	currentCubeLocs[cubes[6]] = prevCubeLocs[cubes[8]];
 }
 
-function xSection(angle, cur, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function xSection(angle, cur, cubes) {
 	var rotAngle = angle - currentAngle[cur]; // angle to rotate cube by
-	xAxisRotation(rotAngle, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	xAxisRotation(rotAngle, cubes);
 	currentAngle[cur] = angle;
 	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90X(i1, i2, i3, i4, i5, i6, i7, i8, i9);
+			moveLocationPositive90X(cubes);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90X(i1, i2, i3, i4, i5, i6, i7, i8, i9);
+			moveLocationNegative90X(cubes);
 		}
 	}
 }
@@ -420,143 +418,143 @@ function L(angle) { // is the issue with the angle?
 	// }
 	//
 	// I still need to figure out bufferSubData
-	xSection(angle, 0, 0, 1, 2, 9, 10, 11, 18, 19, 20);
+	xSection(angle, 0, [0, 1, 2, 9, 10, 11, 18, 19, 20]);
 }
 
 function xMid(angle) {
-	xSection(angle, 1, 3, 4, 5, 12, 13, 14, 21, 22, 23);
+	xSection(angle, 1, [3, 4, 5, 12, 13, 14, 21, 22, 23]);
 }
 
 function R(angle) {
-	xSection(angle, 2, 6, 7, 8, 15, 16, 17, 24, 25, 26);
+	xSection(angle, 2, [6, 7, 8, 15, 16, 17, 24, 25, 26]);
 }
 
-function moveLocationPositive90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function moveLocationPositive90Y(cubes) {
 	var prevCubeLocs = currentCubeLocs.slice();
 
-	currentCubeLocs[i1] = prevCubeLocs[i7];
-	currentCubeLocs[i2] = prevCubeLocs[i4];
-	currentCubeLocs[i3] = prevCubeLocs[i1];
+	currentCubeLocs[cubes[0]] = prevCubeLocs[cubes[6]];
+	currentCubeLocs[cubes[1]] = prevCubeLocs[cubes[3]];
+	currentCubeLocs[cubes[2]] = prevCubeLocs[cubes[0]];
 
-	currentCubeLocs[i4] = prevCubeLocs[i8];
-	currentCubeLocs[i5] = prevCubeLocs[i5]; // not actually necessary
-	currentCubeLocs[i6] = prevCubeLocs[i2];
+	currentCubeLocs[cubes[3]] = prevCubeLocs[cubes[7]];
+	currentCubeLocs[cubes[4]] = prevCubeLocs[cubes[4]]; // not actually necessary
+	currentCubeLocs[cubes[5]] = prevCubeLocs[cubes[1]];
 
-	currentCubeLocs[i7] = prevCubeLocs[i9];
-	currentCubeLocs[i8] = prevCubeLocs[i6];
-	currentCubeLocs[i9] = prevCubeLocs[i3];
+	currentCubeLocs[cubes[6]] = prevCubeLocs[cubes[8]];
+	currentCubeLocs[cubes[7]] = prevCubeLocs[cubes[5]];
+	currentCubeLocs[cubes[8]] = prevCubeLocs[cubes[2]];
 }
 
-function moveLocationNegative90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function moveLocationNegative90Y(cubes) {
 	var prevCubeLocs = currentCubeLocs.slice();
 
-	currentCubeLocs[i7] = prevCubeLocs[i1];
-	currentCubeLocs[i4] = prevCubeLocs[i2];
-	currentCubeLocs[i1] = prevCubeLocs[i3];
+	currentCubeLocs[cubes[6]] = prevCubeLocs[cubes[0]];
+	currentCubeLocs[cubes[3]] = prevCubeLocs[cubes[1]];
+	currentCubeLocs[cubes[0]] = prevCubeLocs[cubes[2]];
 
-	currentCubeLocs[i8] = prevCubeLocs[i4];
-	currentCubeLocs[i5] = prevCubeLocs[i5]; // not actually necessary
-	currentCubeLocs[i2] = prevCubeLocs[i6];
+	currentCubeLocs[cubes[7]] = prevCubeLocs[cubes[3]];
+	currentCubeLocs[cubes[4]] = prevCubeLocs[cubes[4]]; // not actually necessary
+	currentCubeLocs[cubes[1]] = prevCubeLocs[cubes[5]];
 
-	currentCubeLocs[i9] = prevCubeLocs[i7];
-	currentCubeLocs[i6] = prevCubeLocs[i8];
-	currentCubeLocs[i3] = prevCubeLocs[i9];
+	currentCubeLocs[cubes[8]] = prevCubeLocs[cubes[6]];
+	currentCubeLocs[cubes[5]] = prevCubeLocs[cubes[7]];
+	currentCubeLocs[cubes[2]] = prevCubeLocs[cubes[8]];
 }
 
-function ySection(angle, cur, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function ySection(angle, cur, cubes) {
 	var rotAngle = angle - currentAngle[cur]; // angle to rotate cube by
-	yAxisRotation(rotAngle, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	yAxisRotation(rotAngle, cubes);
 	currentAngle[cur] = angle;
 	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9);
+			moveLocationPositive90Y(cubes);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9);
+			moveLocationNegative90Y(cubes);
 		}
 	}
 }
 
 function U(angle) {
-	ySection(angle, 3, 2, 5, 8, 11, 14, 17, 20, 23, 26);
+	ySection(angle, 3, [2, 5, 8, 11, 14, 17, 20, 23, 26]);
 }
 
 function yMid(angle) {
-	ySection(angle, 4, 1, 4, 7, 10, 13, 16, 19, 22, 25);
+	ySection(angle, 4, [1, 4, 7, 10, 13, 16, 19, 22, 25]);
 }
 
 function D(angle) {
-	ySection(angle, 5, 0, 3, 6, 9, 12, 15, 18, 21, 24);
+	ySection(angle, 5, [0, 3, 6, 9, 12, 15, 18, 21, 24]);
 }
 
-function moveLocationPositive90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function moveLocationPositive90Z(cubes) {
 	var prevCubeLocs = currentCubeLocs.slice();
 
-	currentCubeLocs[i1] = prevCubeLocs[i3];
-	currentCubeLocs[i2] = prevCubeLocs[i6];
-	currentCubeLocs[i3] = prevCubeLocs[i9];
+	currentCubeLocs[cubes[0]] = prevCubeLocs[cubes[2]];
+	currentCubeLocs[cubes[1]] = prevCubeLocs[cubes[5]];
+	currentCubeLocs[cubes[2]] = prevCubeLocs[cubes[8]];
 
-	currentCubeLocs[i4] = prevCubeLocs[i2];
-	currentCubeLocs[i5] = prevCubeLocs[i5]; // not actually necessary
-	currentCubeLocs[i6] = prevCubeLocs[i8];
+	currentCubeLocs[cubes[3]] = prevCubeLocs[cubes[1]];
+	currentCubeLocs[cubes[4]] = prevCubeLocs[cubes[4]]; // not actually necessary
+	currentCubeLocs[cubes[5]] = prevCubeLocs[cubes[7]];
 
-	currentCubeLocs[i7] = prevCubeLocs[i1];
-	currentCubeLocs[i8] = prevCubeLocs[i4];
-	currentCubeLocs[i9] = prevCubeLocs[i7];
+	currentCubeLocs[cubes[6]] = prevCubeLocs[cubes[0]];
+	currentCubeLocs[cubes[7]] = prevCubeLocs[cubes[3]];
+	currentCubeLocs[cubes[8]] = prevCubeLocs[cubes[6]];
 }
 
-function moveLocationNegative90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function moveLocationNegative90Z(cubes) {
 	var prevCubeLocs = currentCubeLocs.slice();
 
-	currentCubeLocs[i3] = prevCubeLocs[i1];
-	currentCubeLocs[i6] = prevCubeLocs[i2];
-	currentCubeLocs[i9] = prevCubeLocs[i3];
+	currentCubeLocs[cubes[2]] = prevCubeLocs[cubes[0]];
+	currentCubeLocs[cubes[5]] = prevCubeLocs[cubes[1]];
+	currentCubeLocs[cubes[8]] = prevCubeLocs[cubes[2]];
 
-	currentCubeLocs[i2] = prevCubeLocs[i4];
-	currentCubeLocs[i5] = prevCubeLocs[i5]; // not actually necessary
-	currentCubeLocs[i8] = prevCubeLocs[i6];
+	currentCubeLocs[cubes[1]] = prevCubeLocs[cubes[3]];
+	currentCubeLocs[cubes[4]] = prevCubeLocs[cubes[4]]; // not actually necessary
+	currentCubeLocs[cubes[7]] = prevCubeLocs[cubes[5]];
 
-	currentCubeLocs[i1] = prevCubeLocs[i7];
-	currentCubeLocs[i4] = prevCubeLocs[i8];
-	currentCubeLocs[i7] = prevCubeLocs[i9];
+	currentCubeLocs[cubes[0]] = prevCubeLocs[cubes[6]];
+	currentCubeLocs[cubes[3]] = prevCubeLocs[cubes[7]];
+	currentCubeLocs[cubes[6]] = prevCubeLocs[cubes[8]];
 }
 
-function zSection(angle, cur, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+function zSection(angle, cur, cubes) {
 	var rotAngle = angle - currentAngle[cur]; // angle to rotate cube by
-	zAxisRotation(rotAngle, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	zAxisRotation(rotAngle, cubes);
 	currentAngle[cur] = angle;
 	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9);
+			moveLocationPositive90Z(cubes);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9);
+			moveLocationNegative90Z(cubes);
 		}
 	}
 }
 
 function F(angle) {
-	zSection(angle, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+	zSection(angle, 6, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
 }
 
 function zMid(angle) {
-	zSection(angle, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17);
+	zSection(angle, 7, [9, 10, 11, 12, 13, 14, 15, 16, 17]);
 }
 
 function B(angle) {
-	zSection(angle, 8, 18, 19, 20, 21, 22, 23, 24, 25, 26);
+	zSection(angle, 8, [18, 19, 20, 21, 22, 23, 24, 25, 26]);
 }
 
 function reset() {
