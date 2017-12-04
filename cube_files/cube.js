@@ -237,7 +237,7 @@ window.onload = function init() {
 	    		validAnswer = true;
 	    	}
     	}
-    	validAnswer = false;
+    	validAnswer = false; // not sure I need this
     });
 
     canvas.addEventListener("mousedown", function(event) {
@@ -258,12 +258,8 @@ window.onload = function init() {
 
     // rotations around x-axis
     document.getElementById("L").onchange = function() {
-    	L(event.target.value); // when this is one angle, the slider still changes the rotation
-    	// seemingly randomly, even though the values in the points array seems to stay the same
+    	L(event.target.value);
     }
-    // document.getElementById("xMid").onchange = function() {
-    // 	xMid(event.target.value);
-    // }
     document.getElementById("R").onchange = function() {
     	R(event.target.value);
     }
@@ -272,9 +268,6 @@ window.onload = function init() {
     document.getElementById("U").onchange = function() {
     	U(event.target.value);
     }
-    // document.getElementById("yMid").onchange = function() {
-    // 	yMid(event.target.value);
-    // }
     document.getElementById("D").onchange = function() {
     	D(event.target.value);
     }
@@ -283,9 +276,6 @@ window.onload = function init() {
     document.getElementById("F").onchange = function() {
     	F(event.target.value);
     }
-    // document.getElementById("zMid").onchange = function() {
-    // 	zMid(event.target.value);
-    // }
     document.getElementById("B").onchange = function() {
     	B(event.target.value);
     }
