@@ -7,7 +7,11 @@
 		<script id="vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 vPosition;
 			attribute vec4 vColor;
+			attribute vec2 vTexCoord;
+
 			varying vec4 fColor;
+			varying vec2 fTexCoord;
+
 			uniform vec4 r;
 
 			vec4 multq(vec4 a, vec4 b) {
@@ -26,15 +30,21 @@
 				gl_Position = vec4(p.yzw, 1.0);
 				gl_Position.z = -gl_Position.z;
 				fColor = vColor;
+				fTexCoord = vTexCoord;
 			}
 		</script>
 		<!-- fragment shader -->
 		<script id="fragment-shader" type="x-shader/x-fragment">
 			precision mediump float;
+
 			varying vec4 fColor;
+			varying vec2 fTexCoord;
+
+			uniform sampler2D texture;
 
 			void main() {
 				gl_FragColor = fColor;
+				// gl_FragColor = fColor * texture2D(texture, fTexCoord);
 			}
 		</script>
 		<!-- include js file -->
@@ -99,5 +109,12 @@
 		<div class="row">
 			<button id="reset" class="button">RESET</button>
 		</div>
+		<!-- hidden images -->
+		<img id="imageL" src="images/Afrikansk_dvargget.jpg" crossorigin="anonymous" hidden/>
+		<img id="imageR" src=""/>
+		<img id="imageU" src=""/>
+		<img id="imageD" src=""/>
+		<img id="imageF" src=""/>
+		<img id="imageB" src=""/>
 	</body>
 </html>

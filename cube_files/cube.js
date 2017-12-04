@@ -1,9 +1,21 @@
 var canvas;
 var gl;
+var program;
 var vBuffer;
 
 var points = [];
 var originalPoints = [];
+
+var texCoordsArray = [];
+var texture;
+// will change later
+var texCoord = [
+	vec2(0,0),
+	vec2(0,1),
+	vec2(1,1),
+	vec2(1,0)
+];
+
 var colors = [];
 var vertexColors = [
 	[ 1.0, 0.0, 0.0, 1.0 ],  // red
@@ -145,8 +157,15 @@ function isometric() {
 	trackballMove = false;
 }
 
-function hi() {
-	console.log("hi");
+function configureTexture(image) {
+	texture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+	gl.generateMipmap(gl.TEXTURE_2D);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
 }
 
 window.onload = function init() {
@@ -162,7 +181,7 @@ window.onload = function init() {
 
     gl.enable(gl.DEPTH_TEST);
 
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
     // color stuff
@@ -182,6 +201,20 @@ window.onload = function init() {
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
+
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
+
+    var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
+    gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vTexCoord);
+
+    // var goat = true;
+    // if (goat) {
+    // 	var imageL = document.getElementById("imageL");
+    // 	configureTexture(imageL);
+    // }
 
     rotationQuaternion = vec4(1, 0, 0, 0);
     rotationQuaternionLoc = gl.getUniformLocation(program, "r");
@@ -262,6 +295,9 @@ window.onload = function init() {
 
 function formCubes() {
 	currentColor = 0;
+	//
+	currentTexCoord = 0;
+	//
     for (var i = 0; i < 216; i += 8) {
     	quad(i+1, i, i+3, i+2);
     	quad(i+2, i+3, i+7, i+6);
@@ -279,10 +315,16 @@ function quad(a, b, c, d) {
 	for (var i = 0; i < indices.length; ++i) {
 		points.push(vertices[indices[i]]);
 		colors.push(vertexColors[currentColor]); // I might have to do the color manually
+		// this needs to be fixed later
+		texCoordsArray.push(texCoord[currentTexCoord]);
 	}
 	currentColor += 1;
 	if (currentColor == 6) {
 		currentColor = 0;
+	}
+	currentTexCoord += 1;
+	if (currentTexCoord == 4) {
+		currentTexCoord = 0;
 	}
 }
 
