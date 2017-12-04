@@ -390,73 +390,45 @@ function moveLocationNegative90X(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
 	currentCubeLocs[i7] = prevCubeLocs[i9];
 }
 
-function L(angle) { // is the issue with the angle?
-	// this needs to be a 90 degree rotation, but where the angle changes until it gets to the
-	// correct degree, rendering each time
-
-	// I still need to figure out bufferSubData
-	var rotAngle = angle - currentAngle[0]; // angle to rotate cube by
-	xAxisRotation(rotAngle, 0, 1, 2, 9, 10, 11, 18, 19, 20);
-
-	if (rotAngle > 0) {
-		//
-		// for (var i = currentAngle[0]+1; i <= rotAngle; ++i) {
-		// 	xAxisRotation(1, 0, 1, 2, 9, 10, 11, 18, 19, 20);
-		// 	render();
-		// }
-		//
-		var numRotations = rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90X(0, 1, 2, 9, 10, 11, 18, 19, 20);
-		}
-	} else if (rotAngle < 0) {
-		var numRotations = -rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90X(0, 1, 2, 9, 10, 11, 18, 19, 20);
-		}
-	}
-	currentAngle[0] = angle;
-}
-
-function xMid(angle) {
-	var rotAngle = angle - currentAngle[1]; // angle to rotate cube by
-	xAxisRotation(rotAngle, 3, 4, 5, 12, 13, 14, 21, 22, 23);
-	currentAngle[1] = angle;
-
+function xSection(angle, cur, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+	var rotAngle = angle - currentAngle[cur]; // angle to rotate cube by
+	xAxisRotation(rotAngle, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	currentAngle[cur] = angle;
 	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90X(3, 4, 5, 12, 13, 14, 21, 22, 23);
+			moveLocationPositive90X(i1, i2, i3, i4, i5, i6, i7, i8, i9);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90X(3, 4, 5, 12, 13, 14, 21, 22, 23);
+			moveLocationNegative90X(i1, i2, i3, i4, i5, i6, i7, i8, i9);
 		}
 	}
 }
 
-function R(angle) {
-	var rotAngle = angle - currentAngle[2];
-	xAxisRotation(rotAngle, 6, 7, 8, 15, 16, 17, 24, 25, 26);
-	currentAngle[2] = angle;
+function L(angle) { // is the issue with the angle?
+	// this needs to be a 90 degree rotation, but where the angle changes until it gets to the
+	// correct degree, rendering each time
+	// idea I had for animation that didn't work:
+	// for (var i = currentAngle[0]+1; i <= rotAngle; ++i) {
+	// 	xAxisRotation(1, 0, 1, 2, 9, 10, 11, 18, 19, 20);
+	// 	render();
+	// }
+	//
+	// I still need to figure out bufferSubData
+	xSection(angle, 0, 0, 1, 2, 9, 10, 11, 18, 19, 20);
+}
 
-	if (rotAngle > 0) {
-		var numRotations = rotAngle / 90;
-		console.log(numRotations);
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90X(6, 7, 8, 15, 16, 17, 24, 25, 26);
-		}
-	} else if (rotAngle < 0) {
-		var numRotations = -rotAngle / 90;
-		console.log(numRotations);
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90X(6, 7, 8, 15, 16, 17, 24, 25, 26);
-		}
-	}
+function xMid(angle) {
+	xSection(angle, 1, 3, 4, 5, 12, 13, 14, 21, 22, 23);
+}
+
+function R(angle) {
+	xSection(angle, 2, 6, 7, 8, 15, 16, 17, 24, 25, 26);
 }
 
 function moveLocationPositive90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
@@ -491,58 +463,36 @@ function moveLocationNegative90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
 	currentCubeLocs[i3] = prevCubeLocs[i9];
 }
 
-function U(angle) {
-	var rotAngle = angle - currentAngle[3];
-	yAxisRotation(rotAngle, 2, 5, 8, 11, 14, 17, 20, 23, 26);
-	currentAngle[3] = angle;
-
+function ySection(angle, cur, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+	var rotAngle = angle - currentAngle[cur]; // angle to rotate cube by
+	yAxisRotation(rotAngle, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	currentAngle[cur] = angle;
+	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
+		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Y(2, 5, 8, 11, 14, 17, 20, 23, 26);
+			moveLocationPositive90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
+		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Y(2, 5, 8, 11, 14, 17, 20, 23, 26);
+			moveLocationNegative90Y(i1, i2, i3, i4, i5, i6, i7, i8, i9);
 		}
 	}
+}
+
+function U(angle) {
+	ySection(angle, 3, 2, 5, 8, 11, 14, 17, 20, 23, 26);
 }
 
 function yMid(angle) {
-	var rotAngle = angle - currentAngle[4];
-	yAxisRotation(rotAngle, 1, 4, 7, 10, 13, 16, 19, 22, 25);
-	currentAngle[4] = angle;
-
-	if (rotAngle > 0) {
-		var numRotations = rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Y(1, 4, 7, 10, 13, 16, 19, 22, 25);
-		}
-	} else if (rotAngle < 0) {
-		var numRotations = -rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Y(1, 4, 7, 10, 13, 16, 19, 22, 25);
-		}
-	}
+	ySection(angle, 4, 1, 4, 7, 10, 13, 16, 19, 22, 25);
 }
 
 function D(angle) {
-	var rotAngle = angle - currentAngle[5];
-	yAxisRotation(rotAngle, 0, 3, 6, 9, 12, 15, 18, 21, 24);
-	currentAngle[5] = angle;
-
-	if (rotAngle > 0) {
-		var numRotations = rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Y(0, 3, 6, 9, 12, 15, 18, 21, 24);
-		}
-	} else if (rotAngle < 0) {
-		var numRotations = -rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Y(0, 3, 6, 9, 12, 15, 18, 21, 24);
-		}
-	}
+	ySection(angle, 5, 0, 3, 6, 9, 12, 15, 18, 21, 24);
 }
 
 function moveLocationPositive90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
@@ -577,65 +527,40 @@ function moveLocationNegative90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9) {
 	currentCubeLocs[i7] = prevCubeLocs[i9];
 }
 
-function F(angle) {
-	var rotAngle = angle - currentAngle[6];
-	zAxisRotation(rotAngle, 0, 1, 2, 3, 4, 5, 6, 7, 8);
-	currentAngle[6] = angle;
-
+function zSection(angle, cur, i1, i2, i3, i4, i5, i6, i7, i8, i9) {
+	var rotAngle = angle - currentAngle[cur]; // angle to rotate cube by
+	zAxisRotation(rotAngle, i1, i2, i3, i4, i5, i6, i7, i8, i9);
+	currentAngle[cur] = angle;
+	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
+		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Z(0, 1, 2, 3, 4, 5, 6, 7, 8);
+			moveLocationPositive90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
 		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Z(0, 1, 2, 3, 4, 5, 6, 7, 8);
+			moveLocationNegative90Z(i1, i2, i3, i4, i5, i6, i7, i8, i9);
 		}
 	}
+}
+
+function F(angle) {
+	zSection(angle, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8);
 }
 
 function zMid(angle) {
-	var rotAngle = angle - currentAngle[7];
-	zAxisRotation(rotAngle, 9, 10, 11, 12, 13, 14, 15, 16, 17);
-	currentAngle[7] = angle;
-
-	if (rotAngle > 0) {
-		var numRotations = rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Z(9, 10, 11, 12, 13, 14, 15, 16, 17);
-		}
-	} else if (rotAngle < 0) {
-		var numRotations = -rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Z(9, 10, 11, 12, 13, 14, 15, 16, 17);
-		}
-	}
+	zSection(angle, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17);
 }
 
 function B(angle) {
-	var rotAngle = angle - currentAngle[8];
-	zAxisRotation(rotAngle, 18, 19, 20, 21, 22, 23, 24, 25, 26);
-	currentAngle[8] = angle;
-
-	if (rotAngle > 0) {
-		var numRotations = rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationPositive90Z(18, 19, 20, 21, 22, 23, 24, 25, 26);
-		}
-	} else if (rotAngle < 0) {
-		var numRotations = -rotAngle / 90;
-		for (var i = 0; i < numRotations; ++i) {
-			moveLocationNegative90Z(18, 19, 20, 21, 22, 23, 24, 25, 26);
-		}
-	}
+	zSection(angle, 8, 18, 19, 20, 21, 22, 23, 24, 25, 26);
 }
 
 function reset() {
-	// reload page?
 	// give options for traditional or goats
-	// can I somehow reload vertices?
 	points = originalPoints.slice(); // issue is, it's pass by reference
 	currentCubeLocs = originalCubeLocs.slice();
 	gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
@@ -659,10 +584,10 @@ function render() {
 		rotationQuaternion = multq(rotationQuaternion, rotation);
 		gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
 		// test
-		console.log('mouseAxis: ', mouseAxis);
-		console.log('mouseAngle: ', mouseAngle);
-		console.log('rotation: ', rotation);
-		console.log('rotationQuaternion: ', rotationQuaternion);
+		// console.log('mouseAxis: ', mouseAxis);
+		// console.log('mouseAngle: ', mouseAngle);
+		// console.log('rotation: ', rotation);
+		// console.log('rotationQuaternion: ', rotationQuaternion);
 	}
 	gl.drawArrays(gl.TRIANGLES, 0, points.length);
 	requestAnimFrame(render);
