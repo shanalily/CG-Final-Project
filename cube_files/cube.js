@@ -144,14 +144,11 @@ function isometric() {
 	mouseAngle = 0.0;
 	mouseAxis[0] = 0; mouseAxis[1] = 0; mouseAxis[2] = 1;
 	mouseLastPos[0] = 0; mouseLastPos[1] = 0; mouseLastPos[2] = 0;
-	rotationQuaternion[0] = 1; rotationQuaternion[1] = 0;
+	rotationQuaternion[0] = 0.9530; rotationQuaternion[1] = -0.3029;
 	rotationQuaternion[2] = 0; rotationQuaternion[3] = 0;
-	// angle: 0.0, index: 0, doesn't rotate
-	// angle: 0.0, index: 1, rotated around x axis
-	// angle: 0.0, index: 2, rotated around y axis
-	// angle: 0.0, index: 3, doesn't rotate
-	//
-	console.log("button 2");
+	// 45 degrees
+	var rotation = vec4(0.9239,0,-0.3826,0);
+	rotationQuaternion = multq(rotationQuaternion, rotation);
 	render();
 	trackingMouse = false;
 	trackballMove = false;
@@ -169,10 +166,10 @@ function configureTexture(image) {
 }
 
 window.onload = function init() {
-	canvas = document.getElementById( "gl-canvas" );
+	canvas = document.getElementById("gl-canvas");
 
 	gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
+    if (!gl) { alert("WebGL isn't available"); }
 
     formCubes();
 
