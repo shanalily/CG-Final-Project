@@ -1,3 +1,9 @@
+// TO DO:
+// add lighting so you get better sense of 3D cube
+// add black lines on edges of cubes (try to use texture mapping)
+// add fun pictures option w/ texture mapping
+// add animation of section moving - would need to switch to quaternions for rotation
+
 var canvas;
 var gl;
 var program;
@@ -6,6 +12,7 @@ var vBuffer;
 var points = [];
 var originalPoints = [];
 
+var texSize; // number of pixels?
 var texCoordsArray = [];
 var texture;
 // will change later
@@ -47,6 +54,20 @@ var currentAngle = [
 	0, 0, 0
 ];
 
+var lightPosition = vec4(1.0,1.0,1.0,1.0);
+var lightAmbient = vec4(0.2,0.2,0.2,1.0);
+var lightDiffuse = vec4(1.0,1.0,1.0,1.0);
+var lightSpecular = vec4(1.0,1.0,1.0,1.0);
+
+var materialAmbient = vec4(1.0,0.0,1.0,1.0);
+var materialDiffuse = vec4(1.0,0.8,0.0,1.0);
+var materialSpecular = vec4(1.0,0.8,0.0,1.0);
+var materialShininess = 100.0;
+
+var ambientColor, diffuseColor, specularColor;
+var projection; // var modelView?
+var viewerPos;
+
 var rotationQuaternion;
 var rotationQuaternionLoc;
 var mouseAngle = 0.0;
@@ -60,7 +81,6 @@ var startX, startY;
 function multq(a, b) {
 	var s = vec3(a[1], a[2], a[3]);
 	var t = vec3(b[1], b[2], b[3]);
-	// console.log(s, t);
 	return (vec4(a[0]*b[0] - dot(s,t), add(cross(t, s), add(scale(a[0],t), scale(b[0],s)))));
 }
 
@@ -130,19 +150,17 @@ function center() {
 	mouseLastPos[0] = 0; mouseLastPos[1] = 0; mouseLastPos[2] = 0;
 	rotationQuaternion[0] = 1; rotationQuaternion[1] = 0;
 	rotationQuaternion[2] = 0; rotationQuaternion[3] = 0;
-	console.log("button 1");
 	render();
 	trackingMouse = false;
 	trackballMove = false;
 }
 
-// still needs to be implemented
 function isometric() {
 	trackingMouse = true;
 	trackballMove = true;
-	//
 	mouseAngle = 0.0;
 	mouseAxis[0] = 0; mouseAxis[1] = 0; mouseAxis[2] = 1;
+	// 35.264 degrees down
 	mouseLastPos[0] = 0; mouseLastPos[1] = 0; mouseLastPos[2] = 0;
 	rotationQuaternion[0] = 0.9530; rotationQuaternion[1] = -0.3029;
 	rotationQuaternion[2] = 0; rotationQuaternion[3] = 0;
@@ -154,15 +172,15 @@ function isometric() {
 	trackballMove = false;
 }
 
-function configureTexture(image) {
+function configureTexture() {
 	texture = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	gl.generateMipmap(gl.TEXTURE_2D);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+	// gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
 }
 
 window.onload = function init() {
@@ -174,7 +192,7 @@ window.onload = function init() {
     formCubes();
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.8, 0.8, 0.8, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -216,6 +234,24 @@ window.onload = function init() {
     rotationQuaternion = vec4(1, 0, 0, 0);
     rotationQuaternionLoc = gl.getUniformLocation(program, "r");
     gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
+
+    // lighting stuff
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
+
+    viewerPos = vec3(0.0,0.0,-20.0);
+    projection = ortho(-1,1,-1,1,-100,100);
+    var ambientProduct = mult(lightAmbient, materialAmbient);
+    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    var specularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projection));
 
     document.getElementById("center").addEventListener("click", function() {
     	center();
@@ -424,13 +460,11 @@ function xSection(angle, cur, cubes) {
 	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
-		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
 			moveLocationPositive90X(cubes);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
-		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
 			moveLocationNegative90X(cubes);
 		}
@@ -497,13 +531,11 @@ function ySection(angle, cur, cubes) {
 	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
-		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
 			moveLocationPositive90Y(cubes);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
-		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
 			moveLocationNegative90Y(cubes);
 		}
