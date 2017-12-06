@@ -12,7 +12,7 @@ var vBuffer;
 var points = [];
 var originalPoints = [];
 
-var texSize; // number of pixels?
+var texSize = 64; // number of pixels? This will change
 var texCoordsArray = [];
 var texture;
 // will change later
@@ -22,6 +22,40 @@ var texCoord = [
 	vec2(1,1),
 	vec2(1,0)
 ];
+var image1, image2;
+function createImage1() {
+	image1 = new Array();
+	for (var i = 0; i < texSize; ++i) {
+		image1[i] = new Array();
+	}
+	for (var i = 0; i < texSize; ++i) {
+		for (var j = 0; j < texSize; ++j) {
+			image1[i][j] = new Float32Array(4);
+		}
+	}
+	for (var i = 0; i < texSize; ++i) {
+		for (var j = 0; j < texSize; ++j) {
+			// currently a checkerboard pattern, will change
+			// var c = (((i & 0x8) == 0) ^ ((j & 0x8) == 0));
+			// image1[i][j] = [c, c, c, 1];
+			if (i <= 2 || i >= texSize-3 || j <= 2 || j >= texSize-3) {
+				image1[i][j] = [0, 0, 0, 1];
+			} else {
+				image1[i][j] = [1, 1, 1, 1];
+			}
+		}
+	}
+}
+function createImage2() {
+	image2 = new Uint8Array(4*texSize*texSize);
+	for (var i = 0; i < texSize; ++i) {
+		for (var j = 0; j < texSize; ++j) {
+			for (var k = 0; k < 4; ++k) {
+				image2[4*texSize*i + 4*j + k] = 255 * image1[i][j][k];
+			}
+		}
+	}
+}
 
 var colors = [];
 var vertexColors = [
@@ -172,7 +206,7 @@ function isometric() {
 	trackballMove = false;
 }
 
-function configureTexture() {
+function configureTexture(image) {
 	texture = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -217,6 +251,7 @@ window.onload = function init() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
+    // texture coordinate stuff
     var tBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
@@ -225,6 +260,9 @@ window.onload = function init() {
     gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vTexCoord);
 
+    createImage1();
+    createImage2();
+    configureTexture(image2);
     // var goat = true;
     // if (goat) {
     // 	var imageL = document.getElementById("imageL");
@@ -318,8 +356,8 @@ window.onload = function init() {
 
 function formCubes() {
 	currentColor = 0;
-	//
-	currentTexCoord = 0;
+	
+	// currentTexCoord = 0;
 	//
     for (var i = 0; i < 216; i += 8) {
     	quad(i+1, i, i+3, i+2);
@@ -339,16 +377,19 @@ function quad(a, b, c, d) {
 		points.push(vertices[indices[i]]);
 		colors.push(vertexColors[currentColor]); // I might have to do the color manually
 		// this needs to be fixed later
-		texCoordsArray.push(texCoord[currentTexCoord]);
+		// texCoordsArray.push(texCoord[currentTexCoord]);
 	}
+	texCoordsArray.push(texCoord[0]); texCoordsArray.push(texCoord[1]);
+	texCoordsArray.push(texCoord[2]); texCoordsArray.push(texCoord[0]);
+	texCoordsArray.push(texCoord[2]); texCoordsArray.push(texCoord[3]);
 	currentColor += 1;
 	if (currentColor == 6) {
 		currentColor = 0;
 	}
-	currentTexCoord += 1;
-	if (currentTexCoord == 4) {
-		currentTexCoord = 0;
-	}
+	// currentTexCoord += 1;
+	// if (currentTexCoord == 4) {
+	// 	currentTexCoord = 0;
+	// }
 }
 
 // maybe using quaternions would be faster?

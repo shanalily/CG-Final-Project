@@ -67,8 +67,8 @@
 			uniform sampler2D texture;
 
 			void main() {
-				gl_FragColor = fColor;
-				// gl_FragColor = fColor * texture2D(texture, fTexCoord);
+				// gl_FragColor = fColor;
+				gl_FragColor = fColor * texture2D(texture, fTexCoord);
 			}
 		</script>
 		<!-- include js file -->
