@@ -17,7 +17,8 @@
 			uniform vec4 r;
 			//
 			uniform vec4 ambientProduct, diffuseProduct, specularProduct;
-			// what do I use instead of the modelViewMatrix?
+			// what do I use instead of the modelViewMatrix? I need to convert quaternion to matrix
+			// uniform mat4 modelViewMatrix; // I tried making modelViewMatrix attribute
 			uniform mat4 projectionMatrix;
 			uniform vec4 lightPosition;
 			uniform float shininess;
@@ -30,30 +31,50 @@
 				return vec4(a.x, -a.yzw)/dot(a,a);
 			}
 
+			// supposed to convert quaternion to rotation matrix, not working
+			mat4 quaternionToMatrix(vec4 a) {
+				return mat4(
+					1.0 - 2.0*a.y*a.y - 2.0*a.z*a.z, 2.0*a.x*a.y - 2.0*a.w*a.z, 2.0*a.x*a.z + 2.0*a.w*a.y, 0.0,
+					2.0*a.x*a.y + 2.0*a.w*a.z, 1.0 - 2.0*a.x*a.x - 2.0*a.z*a.z, 2.0*a.y*a.z + 2.0*a.w*a.x, 0.0,
+					2.0*a.x*a.z - 2.0*a.w*a.y, 2.0*a.y*a.z + 2.0*a.w*a.x, 1.0 - 2.0*a.x*a.x - 2.0*a.y*a.y, 0.0,
+					0.0, 0.0, 0.0, 1.0 );
+			}
+
 			void main() {
 		  		vec4 p;
 				p = vec4(0.0, vPosition.xyz);
 				p = multq(r, multq(p, invq(r))); // calculate qpq*
 				//
+				mat4 modelViewMatrix = quaternionToMatrix(p);
+				//
+				vec3 pos = -(modelViewMatrix * vPosition).xyz;
 				vec3 light = lightPosition.xyz;
-				vec3 L = normalize(light-p.yzw); // p needs to be a vec3
-				vec3 E = normalize(-p.yzw);
+				vec3 L = normalize(light-pos); // p needs to be a vec3
+				vec3 E = normalize(-pos);
 				vec3 H = normalize(L+E);
 				vec4 NN = vec4(vNormal, 0);
-				// vec3 N = normalize((__*NN).xyz) // how can I use quaternion?
+
+				vec3 N = normalize((modelViewMatrix*NN).xyz); // how can I use quaternion?
+
 				vec4 ambient = ambientProduct;
-				// float Kd
-				// vec4 diffuse
-				// float Ks
-				// vec4 specular
-				// if (dot(L, N) < 0.0) {
-				//	specular = vec4(0.0,0.0,0.0,1.0);
-				// }
+
+				float Kd = max(dot(L, N), 0.0);
+				vec4 diffuse = Kd * diffuseProduct;
+
+				float Ks = pow(max(dot(N, H), 0.0), shininess);
+				vec4 specular = Ks * specularProduct;
+				if (dot(L, N) < 0.0) {
+					specular = vec4(0.0,0.0,0.0,1.0);
+				}
+
 				//
 				gl_Position = vec4(p.yzw, 1.0);
 				gl_Position.z = -gl_Position.z;
-				// fColor = ambient + diffuse + specular;
 				fColor = vColor;
+				//
+				// gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+				// fColor = ambient + diffuse + specular;
+				// fColor.a = 1.0;
 				fTexCoord = vTexCoord;
 			}
 		</script>

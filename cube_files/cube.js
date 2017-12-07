@@ -114,6 +114,17 @@ function multq(a, b) {
 	return (vec4(a[0]*b[0] - dot(s,t), add(cross(t, s), add(scale(a[0],t), scale(b[0],s)))));
 }
 
+// I'm not sure this is accurate, also I want to try to do this in vertex shader
+function quaternionToMatrix(a) {
+	var w = a[0], x = a[1], y = a[2], z = a[3];
+	// var wx = w * x * 2, wy = w * y * 2, wz = w * z * 2;
+	// var xy = x * y * 2, xz = x * z * 2, yz = y * z * 2;
+	var rotMatrix = mat4(
+		1 - 2*y*y - 2*z*z, 2*x*y - 2*w*z, 2*x*z + 2*w*y,
+		2*x*y + 2*w*z, 1 - 2*x*x - 2*z*z, 2*y*z + 2*w*x,
+		2*x*z - 2*w*y, 2*y*z + 2*w*x, 1 - 2*x*x - 2*y*y );
+}
+
 function trackballView(x, y) {
 	var d, a;
 	var v = [];
@@ -173,8 +184,6 @@ function stopMotion(x, y) {
 function center() {
 	trackingMouse = true;
 	trackballMove = true;
-	// I think I should reset everything to how it was at the beginning
-	// but do I also need to rotate it back? find the angle to do that?
 	mouseAngle = 0.0;
 	mouseAxis[0] = 0; mouseAxis[1] = 0; mouseAxis[2] = 1;
 	mouseLastPos[0] = 0; mouseLastPos[1] = 0; mouseLastPos[2] = 0;
@@ -210,7 +219,6 @@ function configureTexture(image) {
 	gl.generateMipmap(gl.TEXTURE_2D);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	// gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
 }
 
 window.onload = function init() {
@@ -259,11 +267,6 @@ window.onload = function init() {
     createImage1();
     createImage2();
     configureTexture(image2);
-    // var goat = true;
-    // if (goat) {
-    // 	var imageL = document.getElementById("imageL");
-    // 	configureTexture(imageL);
-    // }
 
     rotationQuaternion = vec4(1, 0, 0, 0);
     rotationQuaternionLoc = gl.getUniformLocation(program, "r");
@@ -379,7 +382,7 @@ function quad(a, b, c, d) {
 	}
 }
 
-// maybe using quaternions would be faster?
+// maybe using quaternions would be faster? better for animation
 function multiply(point, m) {
 	var oldPoint = vec4(point[0], point[1], point[2], 1.0);
 	var newPoint = vec4(0.0, 0.0, 0.0, 1.0);
