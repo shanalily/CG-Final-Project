@@ -1,6 +1,5 @@
 // TO DO:
 // add lighting so you get better sense of 3D cube
-// add black lines on edges of cubes (try to use texture mapping)
 // add fun pictures option w/ texture mapping
 // add animation of section moving - would need to switch to quaternions for rotation
 
@@ -35,9 +34,6 @@ function createImage1() {
 	}
 	for (var i = 0; i < texSize; ++i) {
 		for (var j = 0; j < texSize; ++j) {
-			// currently a checkerboard pattern, will change
-			// var c = (((i & 0x8) == 0) ^ ((j & 0x8) == 0));
-			// image1[i][j] = [c, c, c, 1];
 			if (i <= 2 || i >= texSize-3 || j <= 2 || j >= texSize-3) {
 				image1[i][j] = [0, 0, 0, 1];
 			} else {
@@ -356,9 +352,6 @@ window.onload = function init() {
 
 function formCubes() {
 	currentColor = 0;
-	
-	// currentTexCoord = 0;
-	//
     for (var i = 0; i < 216; i += 8) {
     	quad(i+1, i, i+3, i+2);
     	quad(i+2, i+3, i+7, i+6);
@@ -376,8 +369,6 @@ function quad(a, b, c, d) {
 	for (var i = 0; i < indices.length; ++i) {
 		points.push(vertices[indices[i]]);
 		colors.push(vertexColors[currentColor]); // I might have to do the color manually
-		// this needs to be fixed later
-		// texCoordsArray.push(texCoord[currentTexCoord]);
 	}
 	texCoordsArray.push(texCoord[0]); texCoordsArray.push(texCoord[1]);
 	texCoordsArray.push(texCoord[2]); texCoordsArray.push(texCoord[0]);
@@ -386,10 +377,6 @@ function quad(a, b, c, d) {
 	if (currentColor == 6) {
 		currentColor = 0;
 	}
-	// currentTexCoord += 1;
-	// if (currentTexCoord == 4) {
-	// 	currentTexCoord = 0;
-	// }
 }
 
 // maybe using quaternions would be faster?
@@ -409,7 +396,7 @@ function rotateCube(i, m) {
 		points[j] = multiply(points[j], m);
 		// cubePoints.push(multiply(points[j], m));
 	}
-	// gl.bufferSubData(gl.ARRAY_BUFFER, i, flatten(cubePoints));
+	// gl.bufferSubData(gl.ARRAY_BUFFER, i*4, flatten(cubePoints));
 }
 
 function rotateSection(m, cubes) {
@@ -634,13 +621,11 @@ function zSection(angle, cur, cubes) {
 	// updating where each cube is
 	if (rotAngle > 0) {
 		var numRotations = rotAngle / 90;
-		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
 			moveLocationPositive90Z(cubes);
 		}
 	} else if (rotAngle < 0) {
 		var numRotations = -rotAngle / 90;
-		console.log(numRotations);
 		for (var i = 0; i < numRotations; ++i) {
 			moveLocationNegative90Z(cubes);
 		}
@@ -683,11 +668,6 @@ function render() {
 		// rotationQuaterion = q
 		rotationQuaternion = multq(rotationQuaternion, rotation);
 		gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
-		// test
-		// console.log('mouseAxis: ', mouseAxis);
-		// console.log('mouseAngle: ', mouseAngle);
-		// console.log('rotation: ', rotation);
-		// console.log('rotationQuaternion: ', rotationQuaternion);
 	}
 	gl.drawArrays(gl.TRIANGLES, 0, points.length);
 	requestAnimFrame(render);
