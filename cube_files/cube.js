@@ -84,15 +84,15 @@ var currentAngle = [
 	0, 0, 0
 ];
 
-var lightPosition = vec4(1.0,1.0,1.0,1.0);
+var lightPosition = vec4(1.0,1.0,1.0,0.0);
 var lightAmbient = vec4(0.2,0.2,0.2,1.0);
 var lightDiffuse = vec4(1.0,1.0,1.0,1.0);
 var lightSpecular = vec4(1.0,1.0,1.0,1.0);
 
-var materialAmbient = vec4(1.0,0.0,1.0,1.0);
+var materialAmbient = vec4(1.0,1.0,1.0,1.0);
 var materialDiffuse = vec4(0.5,0.5,0.5,1.0);
 var materialSpecular = vec4(1.0,0.8,0.0,1.0);
-var materialShininess = 100.0;
+var materialShininess = 10.0;
 
 var ambientColor, diffuseColor, specularColor;
 var projection; // var modelView?
@@ -118,17 +118,6 @@ function multq(a, b) { // won't need
 	var s = vec3(a[1], a[2], a[3]);
 	var t = vec3(b[1], b[2], b[3]);
 	return (vec4(a[0]*b[0] - dot(s,t), add(cross(t, s), add(scale(a[0],t), scale(b[0],s)))));
-}
-
-// I'm not sure this is accurate, also I want to try to do this in vertex shader
-function quaternionToMatrix(a) { // definitely won't need
-	var w = a[0], x = a[1], y = a[2], z = a[3];
-	// var wx = w * x * 2, wy = w * y * 2, wz = w * z * 2;
-	// var xy = x * y * 2, xz = x * z * 2, yz = y * z * 2;
-	var rotMatrix = mat4(
-		1 - 2*y*y - 2*z*z, 2*x*y - 2*w*z, 2*x*z + 2*w*y,
-		2*x*y + 2*w*z, 1 - 2*x*x - 2*z*z, 2*y*z + 2*w*x,
-		2*x*z - 2*w*y, 2*y*z + 2*w*x, 1 - 2*x*x - 2*y*y );
 }
 
 function trackballView(x, y) {
@@ -275,12 +264,12 @@ window.onload = function init() {
     createImage2();
     configureTexture(image2);
 
-    // rotationQuaternion = vec4(1, 0, 0, 0);
-    // rotationQuaternionLoc = gl.getUniformLocation(program, "r");
-    // gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
-    rotationMatrix = mat4();
-    rotationMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
-    gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
+    rotationQuaternion = vec4(1, 0, 0, 0);
+    rotationQuaternionLoc = gl.getUniformLocation(program, "r");
+    gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
+    // rotationMatrix = mat4();
+    // rotationMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+    // gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
 
     // lighting stuff
     var nBuffer = gl.createBuffer();
@@ -685,14 +674,12 @@ function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	if (trackballMove) {
 		mouseAxis = normalize(mouseAxis);
-		// var c = Math.cos(mouseAngle/2.0);
-		// var s = Math.sin(mouseAngle/2.0);
-		// var rotation = vec4(c, s*mouseAxis[0], s*mouseAxis[1], s*mouseAxis[2]);
-		// // rotationQuaterion = q
-		// rotationQuaternion = multq(rotationQuaternion, rotation);
-		// gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
-		rotationMatrix = mult(rotationMatrix, rotate(mouseAngle, mouseAxis));
-		gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
+		var c = Math.cos(mouseAngle/2.0);
+		var s = Math.sin(mouseAngle/2.0);
+		var rotation = vec4(c, s*mouseAxis[0], s*mouseAxis[1], s*mouseAxis[2]);
+		// rotationQuaterion = q
+		rotationQuaternion = multq(rotationQuaternion, rotation);
+		gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
 	}
 	gl.drawArrays(gl.TRIANGLES, 0, points.length);
 	requestAnimFrame(render);
