@@ -8,14 +8,13 @@
 			attribute vec4 vPosition;
 			attribute vec4 vColor;
 			attribute vec2 vTexCoord;
-			//
 			attribute vec3 vNormal;
 
 			varying vec4 fColor;
 			varying vec2 fTexCoord;
 
-			uniform vec4 r;
-			//
+			// uniform vec4 r;
+			uniform mat4 modelViewMatrix;
 			uniform vec4 ambientProduct, diffuseProduct, specularProduct;
 			// what do I use instead of the modelViewMatrix? I need to convert quaternion to matrix
 			// uniform mat4 modelViewMatrix; // I tried making modelViewMatrix attribute
@@ -41,15 +40,17 @@
 			}
 
 			void main() {
-		  		vec4 p;
-				p = vec4(0.0, vPosition.xyz);
-				p = multq(r, multq(p, invq(r))); // calculate qpq*
+		  // 		vec4 p;
+				// p = vec4(0.0, vPosition.xyz);
+				// p = multq(r, multq(p, invq(r))); // calculate qpq*
 				//
-				mat4 modelViewMatrix = quaternionToMatrix(p);
+				// mat4 modelViewMatrix = quaternionToMatrix(r);
 				//
 				vec3 pos = -(modelViewMatrix * vPosition).xyz;
+
 				vec3 light = lightPosition.xyz;
-				vec3 L = normalize(light-pos); // p needs to be a vec3
+				vec3 L = normalize(light-pos);
+				
 				vec3 E = normalize(-pos);
 				vec3 H = normalize(L+E);
 				vec4 NN = vec4(vNormal, 0);
@@ -63,18 +64,22 @@
 
 				float Ks = pow(max(dot(N, H), 0.0), shininess);
 				vec4 specular = Ks * specularProduct;
+
 				if (dot(L, N) < 0.0) {
 					specular = vec4(0.0,0.0,0.0,1.0);
 				}
 
 				//
-				gl_Position = vec4(p.yzw, 1.0);
-				gl_Position.z = -gl_Position.z;
+				// gl_Position = vec4(p.yzw, 1.0);
+				// gl_Position.z = -gl_Position.z;
 				fColor = vColor;
 				//
+				gl_Position = modelViewMatrix * vPosition;
 				// gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 				// fColor = ambient + diffuse + specular;
+
 				// fColor.a = 1.0;
+
 				fTexCoord = vTexCoord;
 			}
 		</script>
