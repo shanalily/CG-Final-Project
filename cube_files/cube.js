@@ -14,6 +14,7 @@ var originalPoints = [];
 var texSize = 64; // number of pixels? This will change
 var texCoordsArray = [];
 var texture;
+var texture2;
 // will change later
 var texCoord = [
 	vec2(0,0),
@@ -22,36 +23,6 @@ var texCoord = [
 	vec2(1,0)
 ];
 var image1, image2;
-function createImage1() {
-	image1 = new Array();
-	for (var i = 0; i < texSize; ++i) {
-		image1[i] = new Array();
-	}
-	for (var i = 0; i < texSize; ++i) {
-		for (var j = 0; j < texSize; ++j) {
-			image1[i][j] = new Float32Array(4);
-		}
-	}
-	for (var i = 0; i < texSize; ++i) {
-		for (var j = 0; j < texSize; ++j) {
-			if (i <= 2 || i >= texSize-3 || j <= 2 || j >= texSize-3) {
-				image1[i][j] = [0, 0, 0, 1];
-			} else {
-				image1[i][j] = [1, 1, 1, 1];
-			}
-		}
-	}
-}
-function createImage2() {
-	image2 = new Uint8Array(4*texSize*texSize);
-	for (var i = 0; i < texSize; ++i) {
-		for (var j = 0; j < texSize; ++j) {
-			for (var k = 0; k < 4; ++k) {
-				image2[4*texSize*i + 4*j + k] = 255 * image1[i][j][k];
-			}
-		}
-	}
-}
 
 var colors = [];
 var vertexColors = [
@@ -113,6 +84,58 @@ var trackballMove = false;
 var mouseLastPos = [0, 0, 0];
 var curx, cury;
 var startX, startY;
+
+function createImage1() {
+	image1 = new Array();
+	for (var i = 0; i < texSize; ++i) {
+		image1[i] = new Array();
+	}
+	for (var i = 0; i < texSize; ++i) {
+		for (var j = 0; j < texSize; ++j) {
+			image1[i][j] = new Float32Array(4);
+		}
+	}
+	for (var i = 0; i < texSize; ++i) {
+		for (var j = 0; j < texSize; ++j) {
+			if (i <= 2 || i >= texSize-3 || j <= 2 || j >= texSize-3) {
+				image1[i][j] = [0, 0, 0, 1];
+			} else {
+				image1[i][j] = [1, 1, 1, 1];
+			}
+		}
+	}
+}
+function createImage2() {
+	image2 = new Uint8Array(4*texSize*texSize);
+	for (var i = 0; i < texSize; ++i) {
+		for (var j = 0; j < texSize; ++j) {
+			for (var k = 0; k < 4; ++k) {
+				image2[4*texSize*i + 4*j + k] = 255 * image1[i][j][k];
+			}
+		}
+	}
+}
+
+function configureTexture(image) {
+	texture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	gl.generateMipmap(gl.TEXTURE_2D);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+}
+
+function configureImageFileTexture(image) {
+	texture2 = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, texture2);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+	gl.generateMipmap(gl.TEXTURE_2D);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.uniform1i(gl.getUniformLocation(program, "texture2"), 0);
+}
 
 function multq(a, b) { // won't need
 	var s = vec3(a[1], a[2], a[3]);
@@ -206,16 +229,6 @@ function isometric() {
 	trackballMove = false;
 }
 
-function configureTexture(image) {
-	texture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	gl.generateMipmap(gl.TEXTURE_2D);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-}
-
 window.onload = function init() {
 	canvas = document.getElementById("gl-canvas");
 
@@ -260,6 +273,9 @@ window.onload = function init() {
     gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vTexCoord);
 
+    var imageL = document.getElementById("imageL");
+    // configureImageFileTexture(imageL);
+    //
     createImage1();
     createImage2();
     configureTexture(image2);
@@ -267,9 +283,6 @@ window.onload = function init() {
     rotationQuaternion = vec4(1, 0, 0, 0);
     rotationQuaternionLoc = gl.getUniformLocation(program, "r");
     gl.uniform4fv(rotationQuaternionLoc, flatten(rotationQuaternion));
-    // rotationMatrix = mat4();
-    // rotationMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
-    // gl.uniformMatrix4fv(rotationMatrixLoc, false, flatten(rotationMatrix));
 
     // lighting stuff
     var nBuffer = gl.createBuffer();
@@ -393,11 +406,10 @@ function quad(a, b, c, d) {
 
 // maybe using quaternions would be faster? better for animation
 function multiply(point, m) {
-	var oldPoint = vec4(point[0], point[1], point[2], 1.0);
 	var newPoint = vec4(0.0, 0.0, 0.0, 1.0);
-	newPoint[0] = (m[0][0] * oldPoint[0]) + (m[1][0] * oldPoint[1]) + (m[2][0] * oldPoint[2]);
-	newPoint[1] = (m[0][1] * oldPoint[0]) + (m[1][1] * oldPoint[1]) + (m[2][1] * oldPoint[2]);
-	newPoint[2] = (m[0][2] * oldPoint[0]) + (m[1][2] * oldPoint[1]) + (m[2][2] * oldPoint[2]);
+	newPoint[0] = (m[0][0] * point[0]) + (m[1][0] * point[1]) + (m[2][0] * point[2]);
+	newPoint[1] = (m[0][1] * point[0]) + (m[1][1] * point[1]) + (m[2][1] * point[2]);
+	newPoint[2] = (m[0][2] * point[0]) + (m[1][2] * point[1]) + (m[2][2] * point[2]);
 	return newPoint;
 	// I can ignore the fourth column because w = 1
 }
